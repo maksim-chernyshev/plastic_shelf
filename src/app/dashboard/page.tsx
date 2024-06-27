@@ -1,19 +1,15 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import {IMasterRelease, IArtist} from "src/types/release";
+import {IMasterRelease, IReleaseArtist} from "src/types/release";
 import {apiUrl, TOKEN} from "src/constants/constants";
 import React from "react";
+import noCoverImage from '../../../public/assets/img/no-cover.svg';
 
 export default async function DashboardPage() {
     const randomId = (Math.floor(Math.random() * 10000)).toString();
 
     const getRelease = async (id: string): Promise<IMasterRelease> => {
-        const releaseData = await fetch(`${apiUrl}/masters/${id}?token=${TOKEN}`, {
-            cache: 'force-cache',
-            next: {
-                revalidate: 200
-            }
-        });
+        const releaseData = await fetch(`${apiUrl}/masters/${id}?token=${TOKEN}`);
 
         return await releaseData.json();
     };
@@ -33,7 +29,7 @@ export default async function DashboardPage() {
             <Link
                 href={`/artists/${artist.id}`}
                 key={artist.id}
-                className="flex place-content-center p-6 font-bold hover:text-amber-400 transition-colors"
+                className="p-6 font-bold hover:text-amber-400 transition-colors"
             >
                 {artist.name}
             </Link>
@@ -41,8 +37,6 @@ export default async function DashboardPage() {
     };
 
     const artists = renderArtists(release);
-
-    console.log(artists);
 
     const releaseImage = release.images.filter((item: { type: string }) => {
         if (!item) {
@@ -54,10 +48,12 @@ export default async function DashboardPage() {
 
     return (
         <div className="grid place-content-center w-full h-dvh">
-            {artists ? artists : 'Артисты не найдены'}
-
+            <div className='flex place-content-center'>
+                {artists ? artists : 'Артисты не найдены'}
+            </div>
+            
             { releaseImage[0]?.uri && <Image
-                src={releaseImage[0].uri}
+                src={releaseImage[0].uri || noCoverImage}
                 className="m-auto"
                 width={500}
                 height={500}
@@ -74,3 +70,4 @@ export default async function DashboardPage() {
     );
 }
 
+// 8254 - два артиста
